@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "oci-costwatch"
+version = "1.0.0"
+description = "OCI CostWatch - FinOps and cloud hygiene monitoring for Oracle Cloud Infrastructure"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+costwatch = "cli.costwatch_cli:main"
+
+[tool.ruff]
+line-length = 100
+lint.select = ["E", "F", "I", "UP"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
