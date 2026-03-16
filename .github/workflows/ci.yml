@@ -30,6 +30,7 @@ jobs:
       - name: Build Docker image
         run: docker build -f docker/Dockerfile -t oci-costwatch:ci .
 
+        codex/build-oci-costwatch-open-source-project-j4conn
       - name: Security scan (pip-audit, advisory)
         continue-on-error: true
         run: |
@@ -45,3 +46,9 @@ jobs:
           name: pip-audit-report
           path: pip-audit-report.json
           if-no-files-found: ignore
+
+      - name: Security scan (pip-audit)
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements.txt
+         main

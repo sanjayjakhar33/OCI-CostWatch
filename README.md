@@ -73,7 +73,11 @@ cp .env.example .env
 ### 2) Start the stack
 
 ```bash
+        codex/build-oci-costwatch-open-source-project-j4conn
 docker compose up --build
+=======
+docker compose -f docker/docker-compose.yml up --build
+        main
 ```
 
 ### 3) Access services
