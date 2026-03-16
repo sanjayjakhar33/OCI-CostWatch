@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 try:
     import oci  # type: ignore
 except Exception:  # pragma: no cover
+except Exception:  # pragma: no cover - optional at runtime
     oci = None
 
 
@@ -28,6 +29,13 @@ class CostAnalyzer:
     def fetch_cost_data(self, days: int = 30) -> list[CostItem]:
         if self.demo_mode or oci is None:
             logger.info("cost_data_source=demo days=%s", days)
+    def __init__(self, threshold_pct: float = 50.0) -> None:
+        self.threshold_pct = threshold_pct
+
+    def fetch_cost_data(self, days: int = 30) -> list[CostItem]:
+        """Fetch cost data from OCI Cost Analysis APIs or fallback with sample data."""
+        if oci is None:
+            logger.warning("OCI SDK unavailable, using synthetic cost data")
             today = date.today()
             out: list[CostItem] = []
             for i in range(days):
@@ -42,6 +50,9 @@ class CostAnalyzer:
             return sorted(out, key=lambda x: x.day)
 
         logger.info("cost_data_source=oci sdk_available=true")
+        # Placeholder for OCI Cost Analysis API integration.
+        # Kept explicit for production extension.
+        logger.info("OCI SDK present; implement tenancy-specific cost query logic here")
         return []
 
     @staticmethod
@@ -86,6 +97,14 @@ class CostAnalyzer:
                 }
                 logger.warning("cost_spike_detected=%s", event)
                 spikes.append(event)
+                spikes.append(
+                    {
+                        "date": day.isoformat(),
+                        "previous": round(prev, 2),
+                        "current": round(curr, 2),
+                        "change_pct": round(change_pct, 2),
+                    }
+                )
         return spikes
 
     def summarize(self, days: int = 30) -> dict[str, object]:

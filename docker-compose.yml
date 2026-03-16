@@ -56,6 +56,11 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     container_name: oci-costwatch-celery
+  celery-worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: oci-costwatch-celery-worker
     command: celery -A backend.tasks.celery_app.celery worker --loglevel=info
     env_file:
       - .env

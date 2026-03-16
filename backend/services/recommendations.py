@@ -17,6 +17,8 @@ def cloud_hygiene_score(
         + tag_non_compliance_count * 4
         + cost_anomaly_count * 8
     )
+) -> int:
+    penalty = zombie_count * 6 + exposure_count * 10 + idle_count * 5 + opportunities * 4
     return max(0, min(100, 100 - penalty))
 
 
@@ -28,11 +30,21 @@ def build_recommendations(
 ) -> list[dict[str, object]]:
     recs: list[dict[str, object]] = []
     for z in zombies:
+    zombies: list[dict], exposures: list[dict], idle: list[dict]
+) -> list[dict[str, object]]:
+    recs: list[dict[str, object]] = []
+    for z in zombies:
+        action = (
+            "Delete detached block volume"
+            if z.get("resource_type") == "detached_block_volume"
+            else "Remove or clean up unused resource"
+        )
         recs.append(
             {
                 "resource_id": z["resource_id"],
                 "type": "zombie_cleanup",
                 "action": "Delete or right-size unused resource",
+                "action": action,
                 "potential_savings_usd": z.get("estimated_monthly_waste_usd", 0),
                 "priority": "medium",
             }

@@ -25,3 +25,13 @@ def configure_logging(level: str = "INFO") -> None:
     root.handlers.clear()
     root.setLevel(level)
     root.addHandler(handler)
+import logging
+import sys
+
+
+def configure_logging(level: str = "INFO") -> None:
+    logging.basicConfig(
+        level=level,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        handlers=[logging.StreamHandler(sys.stdout)],
+    )

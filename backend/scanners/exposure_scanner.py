@@ -20,6 +20,7 @@ class ExposureScanner:
                 resource_name="default-security-list",
                 category="security_list_open_world",
                 detail="Ingress allows 0.0.0.0/0 on tcp/22 (SSH)",
+                detail="Ingress allows 0.0.0.0/0 on tcp/22",
                 severity="high",
             ),
             ExposureFinding(
@@ -34,6 +35,7 @@ class ExposureScanner:
                 resource_name="db-nsg",
                 category="nsg_open_database",
                 detail="Ingress allows 0.0.0.0/0 on tcp/3306 and tcp/5432",
+                detail="Ingress allows 0.0.0.0/0 on tcp/3389",
                 severity="critical",
             ),
         ]
