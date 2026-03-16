@@ -51,6 +51,11 @@ services:
     ports:
       - "6379:6379"
 
+  celery:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: oci-costwatch-celery
   celery-worker:
     build:
       context: .

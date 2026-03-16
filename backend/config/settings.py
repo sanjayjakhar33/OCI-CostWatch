@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import Field, field_validator
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -8,6 +9,7 @@ class Settings(BaseSettings):
     app_name: str = "OCI CostWatch"
     app_env: str = "development"
     log_level: str = "INFO"
+    demo_mode: bool = True
 
     database_url: str = Field(
         default="postgresql+psycopg://costwatch:costwatch@postgres:5432/costwatch"
@@ -19,10 +21,17 @@ class Settings(BaseSettings):
     oci_region: str = "us-ashburn-1"
     oci_compartment_id: str = "ocid1.compartment.oc1..exampleuniqueID"
 
+    mandatory_tags: list[str] = ["Environment", "Owner", "Project"]
+
     cost_spike_threshold_pct: float = 50.0
     idle_cpu_threshold_pct: float = 5.0
     idle_days_threshold: int = 7
     zombie_snapshot_days: int = 30
+
+    scan_interval_cost_seconds: int = 86400
+    scan_interval_zombie_seconds: int = 21600
+    scan_interval_exposure_seconds: int = 43200
+    scan_interval_idle_seconds: int = 21600
 
     slack_webhook_url: str | None = None
     smtp_host: str | None = None
@@ -43,6 +52,13 @@ class Settings(BaseSettings):
         case_sensitive=False,
         extra="ignore",
     )
+
+    @field_validator("cost_spike_threshold_pct")
+    @classmethod
+    def validate_threshold(cls, value: float) -> float:
+        if value <= 0:
+            raise ValueError("cost_spike_threshold_pct must be greater than zero")
+        return value
 
 
 @lru_cache

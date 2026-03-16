@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 try:
     import oci  # type: ignore
+except Exception:  # pragma: no cover
 except Exception:  # pragma: no cover - optional at runtime
     oci = None
 
@@ -21,6 +22,13 @@ class CostItem:
 
 
 class CostAnalyzer:
+    def __init__(self, threshold_pct: float = 50.0, demo_mode: bool = True) -> None:
+        self.threshold_pct = threshold_pct
+        self.demo_mode = demo_mode
+
+    def fetch_cost_data(self, days: int = 30) -> list[CostItem]:
+        if self.demo_mode or oci is None:
+            logger.info("cost_data_source=demo days=%s", days)
     def __init__(self, threshold_pct: float = 50.0) -> None:
         self.threshold_pct = threshold_pct
 
@@ -41,6 +49,7 @@ class CostAnalyzer:
                 )
             return sorted(out, key=lambda x: x.day)
 
+        logger.info("cost_data_source=oci sdk_available=true")
         # Placeholder for OCI Cost Analysis API integration.
         # Kept explicit for production extension.
         logger.info("OCI SDK present; implement tenancy-specific cost query logic here")
@@ -80,6 +89,14 @@ class CostAnalyzer:
                 continue
             change_pct = ((curr - prev) / prev) * 100
             if change_pct > self.threshold_pct:
+                event = {
+                    "date": day.isoformat(),
+                    "previous": round(prev, 2),
+                    "current": round(curr, 2),
+                    "change_pct": round(change_pct, 2),
+                }
+                logger.warning("cost_spike_detected=%s", event)
+                spikes.append(event)
                 spikes.append(
                     {
                         "date": day.isoformat(),

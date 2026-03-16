@@ -2,6 +2,16 @@
   "annotations": {"list": []},
   "editable": true,
   "panels": [
+    {"type": "timeseries", "title": "Daily Cost Trend", "targets": [{"expr": "costwatch_scans_total", "refId": "A"}], "gridPos": {"h": 8, "w": 8, "x": 0, "y": 0}},
+    {"type": "stat", "title": "Monthly Projected Cost", "targets": [{"expr": "costwatch_scans_total", "refId": "B"}], "gridPos": {"h": 8, "w": 4, "x": 8, "y": 0}},
+    {"type": "stat", "title": "Cloud Hygiene Score", "targets": [{"expr": "100 - costwatch_cost_spikes_total", "refId": "C"}], "gridPos": {"h": 8, "w": 4, "x": 12, "y": 0}},
+    {"type": "table", "title": "Zombie Resources", "targets": [{"expr": "costwatch_scans_total", "refId": "D"}], "gridPos": {"h": 8, "w": 8, "x": 16, "y": 0}},
+    {"type": "table", "title": "Public Internet Exposures", "targets": [{"expr": "costwatch_scans_total", "refId": "E"}], "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}},
+    {"type": "table", "title": "Idle Instances", "targets": [{"expr": "costwatch_scans_total", "refId": "F"}], "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}}
+  ],
+  "schemaVersion": 39,
+  "title": "OCI CostWatch Overview",
+  "version": 2
     {
       "type": "timeseries",
       "title": "Daily Cost Trend",

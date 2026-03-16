@@ -16,6 +16,21 @@ celery = Celery(
 )
 
 celery.conf.beat_schedule = {
+    "cost-scan": {
+        "task": "backend.tasks.celery_app.refresh_cost",
+        "schedule": settings.scan_interval_cost_seconds,
+    },
+    "zombie-scan": {
+        "task": "backend.tasks.celery_app.scan_zombies",
+        "schedule": settings.scan_interval_zombie_seconds,
+    },
+    "exposure-scan": {
+        "task": "backend.tasks.celery_app.scan_exposures",
+        "schedule": settings.scan_interval_exposure_seconds,
+    },
+    "idle-scan": {
+        "task": "backend.tasks.celery_app.scan_idle",
+        "schedule": settings.scan_interval_idle_seconds,
     "scheduled-scan-every-6-hours": {
         "task": "backend.tasks.celery_app.run_periodic_scan",
         "schedule": 21600,
@@ -28,6 +43,18 @@ celery.conf.beat_schedule = {
 
 
 @celery.task
+def scan_zombies() -> dict[str, int]:
+    return {"zombies": len(ZombieDetector().scan())}
+
+
+@celery.task
+def scan_exposures() -> dict[str, int]:
+    return {"exposures": len(ExposureScanner().scan())}
+
+
+@celery.task
+def scan_idle() -> dict[str, int]:
+    return {"idle": len(IdleDetector().scan())}
 def run_periodic_scan() -> dict[str, int]:
     return {
         "zombies": len(ZombieDetector().scan()),
@@ -38,4 +65,6 @@ def run_periodic_scan() -> dict[str, int]:
 
 @celery.task
 def refresh_cost() -> dict[str, object]:
+    analyzer = CostAnalyzer(settings.cost_spike_threshold_pct, demo_mode=settings.demo_mode)
+    return analyzer.summarize(days=30)
     return CostAnalyzer(settings.cost_spike_threshold_pct).summarize(days=30)

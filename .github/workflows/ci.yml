@@ -21,6 +21,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Ruff lint
+        run: ruff check .
+
+      - name: Flake8 lint
+        run: flake8 .
+
+      - name: Black formatting check
+        run: black --check .
+
       - name: Lint
         run: ruff check .
 
@@ -30,6 +39,20 @@ jobs:
       - name: Build Docker image
         run: docker build -f docker/Dockerfile -t oci-costwatch:ci .
 
+      - name: Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: 'oci-costwatch:ci'
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Secrets scan (Gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         codex/build-oci-costwatch-open-source-project-j4conn
       - name: Security scan (pip-audit, advisory)
         continue-on-error: true

@@ -20,6 +20,9 @@ class IdleDetector:
         self.min_idle_days = min_idle_days
 
     def scan(self) -> list[dict[str, str | float | int]]:
+        # OCI implementation note:
+        # Query OCI Monitoring metrics namespace `oci_computeagent` for CPU utilization
+        # over the last N days and aggregate average utilization per instance.
         findings = [
             IdleResource(
                 instance_id="ocid1.instance.oc1..idle001",
